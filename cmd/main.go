@@ -1,34 +1,100 @@
 package main
 
 import (
-        "github.com/gotk3/gotk3/gtk"
+	"github.com/gotk3/gotk3/gtk"
+	"log"
+	"github.com/VladMak/pg_go_manager/internal/domain"
 )
 
 func main() {
-        // Инициализируем GTK.
-        gtk.Init(nil)
+	// Инициализируем список серверов 
+	var serverList *domain.ServerList = domain.NewServerList()
+	serverList.AddServer("test", "localhost", 5432)
 
-        b, err := gtk.BuilderNew()
-        if err != nil {
-        	println("Err")
-        }
+	// Инициализируем GTK.
+	gtk.Init(nil)
 
-        err = b.AddFromFile("screen/main.glade")
-        if err != nil {
-        	println("Bad")
-        }
+	b, err := gtk.BuilderNew()
+	if err != nil {
+		println("Err")
+	}
 
-        obj, err := b.GetObject("main_window")
-        if err != nil {
-        	println("Bad")
-        }
+	err = b.AddFromFile("screen/main.glade")
+	if err != nil {
+		println("Bad")
+	}
 
-        win := obj.(*gtk.Window)
-        win.Connect("destroy", func(){
-        	gtk.MainQuit()
-        })
+	obj, err := b.GetObject("main_window")
+	if err != nil {
+		println("Bad")
+	}
 
-        win.ShowAll()
+	win := obj.(*gtk.ApplicationWindow)
+	win.Connect("destroy", func() {
+		gtk.MainQuit()
+	})
 
-        gtk.Main()
+	listBox, err := b.GetObject("list_box")
+	if err != nil {
+		println("Bad")
+	}
+
+	listBoxObj, ok := listBox.(*gtk.ListBox)
+	if !ok {
+		println("Bad")
+	}
+
+	serverListBox, err := b.GetObject("serverListBox")
+	if err != nil {
+		println("Bad")
+	}
+
+	serverListBoxObj, ok := serverListBox.(*gtk.ListBox)
+	if !ok {
+		println("Bad")
+	}
+
+	fillLeftPart(serverListBoxObj, serverList)
+	fillListBox(listBoxObj)
+
+	win.ShowAll()
+	gtk.Main()
+}
+
+func fillLeftPart(listBox *gtk.ListBox, serverList *domain.ServerList) {
+	for i := 0; i < len(serverList.ServerItems) + 1; i++ {
+		row, err := gtk.ListBoxRowNew()
+		if err != nil {
+			log.Fatal("Ошибка:", err)
+		}
+
+		if i == 0 {
+			button, err := gtk.ButtonNew()
+			if err != nil {
+				log.Fatal("Ошибка:", err)
+			}
+			button.SetLabel("+")
+			row.Add(button)
+			listBox.Add(row)
+			continue
+		}
+	}
+}
+
+func fillListBox(listBox *gtk.ListBox) {
+	for i := 0; i < 10; i++ {
+		row, err := gtk.ListBoxRowNew()
+		if err != nil {
+			log.Fatal("Ошибка при создании строки списка:", err)
+		}
+
+		button, err := gtk.ButtonNew()
+		if err != nil {
+			log.Fatal("Ошибка при создании метки:", err)
+		}
+		button.SetLabel("Hello")
+		button.SetBorderWidth(0)
+		row.Add(button)
+		listBox.Add(row)
+	}
 }

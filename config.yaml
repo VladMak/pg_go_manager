@@ -1,0 +1,5 @@
+  username: "postgres"
+  password: "79911997"
+  dbname: "postgres"
+  host: "localhost"
+  sslmode: "disable"
